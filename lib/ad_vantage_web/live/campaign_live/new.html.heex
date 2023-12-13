@@ -1,0 +1,35 @@
+<.header>
+  <%= gettext("Crear nueva campaña") %>
+</.header>
+
+<.simple_form for={@form} id="campaign-form" phx-change="validate" phx-submit="save">
+  <.input field={@form[:name]} type="text" label={gettext("Nombre")} />
+  <.input field={@form[:description]} type="textarea" label={gettext("Descripción")} />
+
+  <label for={@uploads.master.ref}><%= gettext("Fichero Master") %></label>
+  <.live_file_input upload={@uploads.master} />
+
+  <article :for={entry <- @uploads.master.entries} class="upload-entry">
+    <figure>
+      <.live_img_preview entry={entry} />
+      <figcaption><%= entry.client_name %></figcaption>
+    </figure>
+
+    <%!-- entry.progress will update automatically for in-flight entries --%>
+    <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
+
+    <%!-- a regular click event whose handler will invoke Phoenix.LiveView.cancel_upload/3 --%>
+    <button type="button" phx-click="cancel-upload" phx-value-ref={entry.ref} aria-label="cancel">
+      &times;
+    </button>
+
+    <%!-- Phoenix.Component.upload_errors/2 returns a list of error atoms --%>
+    <%= for err <- upload_errors(@uploads.master, entry) do %>
+      <p class="alert alert-danger"><%= error_to_string(err) %></p>
+    <% end %>
+  </article>
+
+  <:actions>
+    <.button phx-disable-with="Saving..."><%= gettext("Guardar campaña") %></.button>
+  </:actions>
+</.simple_form>

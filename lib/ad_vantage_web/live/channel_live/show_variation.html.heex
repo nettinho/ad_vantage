@@ -1,0 +1,44 @@
+<.header>
+  <%= gettext("Variación") %> - <%= @variation.name %>
+  <:actions>
+    <.link
+      patch={~p"/channels/#{@channel}/variations/#{@variation}/show/edit"}
+      phx-click={JS.push_focus()}
+    >
+      <.button><%= gettext("Editar") %></.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title={gettext("Nombre")}><%= @variation.name %></:item>
+  <:item title={gettext("Descripción")}><%= @variation.description %></:item>
+  <:item title={gettext("Tono")}><%= @variation.tone %></:item>
+  <:item title={gettext("Grupo objetivo")}><%= @variation.target %></:item>
+  <:item title={gettext("Orientacíon")}><%= @variation.orientation %></:item>
+  <:item title={gettext("Ancho (px)")}><%= @variation.width %></:item>
+  <:item title={gettext("Altura (px)")}><%= @variation.height %></:item>
+  <:item title={gettext("Margen (px)")}><%= @variation.margin %></:item>
+  <:item title={gettext("Logo?")}><%= @variation.has_logo %></:item>
+</.list>
+
+<.back navigate={~p"/channels/#{@channel}"}>
+  <%= gettext("Volver al canal ") <> @channel.name %>
+</.back>
+
+<.modal
+  :if={@live_action in [:edit_variation]}
+  id="variation-modal"
+  show
+  on_cancel={JS.patch(~p"/channels/#{@channel}/variations/#{@variation}")}
+>
+  <.live_component
+    module={AdVantageWeb.ChannelLive.VariationFormComponent}
+    id={@variation.id || :new}
+    title={@page_title}
+    action={@live_action}
+    variation={@variation}
+    channel_id={@channel.id}
+    patch={~p"/channels/#{@channel}/variations/#{@variation}"}
+  />
+</.modal>

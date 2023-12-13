@@ -1,0 +1,87 @@
+<.header>
+  <%= gettext("Canal") %> - <%= @channel.name %>
+  <:actions>
+    <.link patch={~p"/channels/#{@channel}/show/edit"} phx-click={JS.push_focus()}>
+      <.button><%= gettext("Editar") %></.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title={gettext("Oferta")}><%= @channel.offering %></:item>
+</.list>
+
+<.header>
+  <%= gettext("Variaciones") %>
+  <:actions>
+    <.link patch={~p"/channels/#{@channel}/variations/new"} phx-click={JS.push_focus()}>
+      <.button><%= gettext("Crear variación") %></.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="variations"
+  rows={@streams.variations}
+  row_click={
+    fn {_id, variation} -> JS.navigate(~p"/channels/#{@channel}/variations/#{variation}") end
+  }
+>
+  <:col :let={{_id, variation}} label={gettext("Nombre")}><%= variation.name %></:col>
+  <:col :let={{_id, variation}} label={gettext("Descripción")}><%= variation.description %></:col>
+  <:col :let={{_id, variation}} label={gettext("Tono")}><%= variation.tone %></:col>
+  <:col :let={{_id, variation}} label={gettext("Grupo objetivo")}><%= variation.target %></:col>
+  <:action :let={{_id, variation}}>
+    <div class="sr-only">
+      <.link navigate={~p"/channels/#{@channel}/variations/#{variation}"}>
+        <%= gettext("Detalle") %>
+      </.link>
+    </div>
+    <.link patch={~p"/channels/#{@channel}/variations/#{variation}/edit"}>
+      <%= gettext("Editar") %>
+    </.link>
+  </:action>
+  <:action :let={{id, variation}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: variation.id}) |> hide("##{id}")}
+      data-confirm={gettext("¿Borrar variación?")}
+    >
+      <%= gettext("Borrar") %>
+    </.link>
+  </:action>
+</.table>
+
+<.back navigate={~p"/channels"}><%= gettext("Volver a canales") %></.back>
+
+<.modal
+  :if={@live_action == :edit}
+  id="channel-modal"
+  show
+  on_cancel={JS.patch(~p"/channels/#{@channel}")}
+>
+  <.live_component
+    module={AdVantageWeb.ChannelLive.FormComponent}
+    id={@channel.id}
+    title={@page_title}
+    action={@live_action}
+    channel={@channel}
+    patch={~p"/channels/#{@channel}"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action in [:new_variation, :edit_variation]}
+  id="variation-modal"
+  show
+  on_cancel={JS.patch(~p"/channels/#{@channel}")}
+>
+  <.live_component
+    module={AdVantageWeb.ChannelLive.VariationFormComponent}
+    id={@variation.id || :new}
+    title={@page_title}
+    action={@live_action}
+    variation={@variation}
+    channel_id={@channel.id}
+    patch={~p"/channels/#{@channel}"}
+  />
+</.modal>

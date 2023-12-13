@@ -1,0 +1,49 @@
+<.header>
+  <%= gettext("Campañas") %>
+  <:actions>
+    <.link patch={~p"/campaigns/new"}>
+      <.button><%= gettext("Nueva campaña") %></.button>
+    </.link>
+    <.link patch={~p"/channels"}>
+      <.button><%= gettext("Canales") %></.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="campaigns"
+  rows={@streams.campaigns}
+  row_click={fn {_id, campaign} -> JS.navigate(~p"/campaigns/#{campaign}") end}
+>
+  <:col :let={{_id, campaign}} label={gettext("Nombre")}><%= campaign.name %></:col>
+  <:col :let={{_id, campaign}} label={gettext("Descripción")}><%= campaign.description %></:col>
+  <:action :let={{_id, campaign}}>
+    <div class="sr-only">
+      <.link navigate={~p"/campaigns/#{campaign}"}><%= gettext("Detalle") %></.link>
+    </div>
+  </:action>
+  <:action :let={{id, campaign}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: campaign.id}) |> hide("##{id}")}
+      data-confirm={gettext("¿Borrar campaña?")}
+    >
+      <%= gettext("Borrar") %>
+    </.link>
+  </:action>
+</.table>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="campaign-modal"
+  show
+  on_cancel={JS.patch(~p"/campaigns")}
+>
+  <.live_component
+    module={AdVantageWeb.CampaignLive.FormComponent}
+    id={@campaign.id || :new}
+    title={@page_title}
+    action={@live_action}
+    campaign={@campaign}
+    patch={~p"/campaigns"}
+  />
+</.modal>

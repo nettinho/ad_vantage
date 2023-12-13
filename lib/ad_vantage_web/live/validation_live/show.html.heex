@@ -1,0 +1,27 @@
+<.header>
+  Validation <%= @validation.id %>
+  <:subtitle>This is a validation record from your database.</:subtitle>
+  <:actions>
+    <.link patch={~p"/validations/#{@validation}/show/edit"} phx-click={JS.push_focus()}>
+      <.button>Edit validation</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Approved"><%= @validation.approved %></:item>
+  <:item title="Explanation"><%= @validation.explanation %></:item>
+</.list>
+
+<.back navigate={~p"/validations"}>Back to validations</.back>
+
+<.modal :if={@live_action == :edit} id="validation-modal" show on_cancel={JS.patch(~p"/validations/#{@validation}")}>
+  <.live_component
+    module={AdVantageWeb.ValidationLive.FormComponent}
+    id={@validation.id}
+    title={@page_title}
+    action={@live_action}
+    validation={@validation}
+    patch={~p"/validations/#{@validation}"}
+  />
+</.modal>

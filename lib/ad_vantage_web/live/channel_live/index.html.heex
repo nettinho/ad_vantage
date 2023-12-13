@@ -1,0 +1,46 @@
+<.header>
+  <%= gettext("Canales") %>
+  <:actions>
+    <.link patch={~p"/channels/new"}>
+      <.button><%= gettext("Nuevo canal") %></.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="channels"
+  rows={@streams.channels}
+  row_click={fn {_id, channel} -> JS.navigate(~p"/channels/#{channel}") end}
+>
+  <:col :let={{_id, channel}} label={gettext("Nombre")}><%= channel.name %></:col>
+  <:action :let={{_id, channel}}>
+    <div class="sr-only">
+      <.link navigate={~p"/channels/#{channel}"}><%= gettext("Detalle") %></.link>
+    </div>
+    <.link patch={~p"/channels/#{channel}/edit"}><%= gettext("Editar") %></.link>
+  </:action>
+  <:action :let={{id, channel}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: channel.id}) |> hide("##{id}")}
+      data-confirm={gettext("¿Borrar canal?")}
+    >
+      <%= gettext("Borrar") %>
+    </.link>
+  </:action>
+</.table>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="channel-modal"
+  show
+  on_cancel={JS.patch(~p"/channels")}
+>
+  <.live_component
+    module={AdVantageWeb.ChannelLive.FormComponent}
+    id={@channel.id || :new}
+    title={@page_title}
+    action={@live_action}
+    channel={@channel}
+    patch={~p"/channels"}
+  />
+</.modal>

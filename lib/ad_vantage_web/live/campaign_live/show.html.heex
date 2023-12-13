@@ -1,0 +1,112 @@
+<.header>
+  <%= gettext("Campaña") %> - <%= @campaign.name %>
+  <:actions>
+    <.link patch={~p"/campaigns/#{@campaign}/show/edit"} phx-click={JS.push_focus()}>
+      <.button><%= gettext("Editar campaña") %></.button>
+    </.link>
+  </:actions>
+</.header>
+<.back navigate={~p"/campaigns"}><%= gettext("Volver a campañas") %></.back>
+
+<.list>
+  <:item title={gettext("Nombre")}><%= @campaign.name %></:item>
+  <:item title={gettext("Descripción")}><%= @campaign.description %></:item>
+  <:item title={gettext("Fichero Master")}>
+    <img src={"https://indplatformpamlsaiaem.blob.core.windows.net/advantage/#{@campaign.filename}"} />
+  </:item>
+</.list>
+
+<.header>
+  <%= gettext("Variaciones por canal") %>
+</.header>
+
+<div :for={channel <- @channels} class="w-full mt-5 mb-5">
+  <div class="text-l w-full border-b border-black flex justify-between">
+    <%= channel.name %>
+
+    <.link
+      patch={~p"/campaigns/#{@campaign}/#{channel.id}/variations/new"}
+      phx-click={JS.push_focus()}
+    >
+      <div class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80 cursor-pointer">
+        <%= gettext("Subir variación") %>
+      </div>
+    </.link>
+  </div>
+
+  <div id={"variations_channel_#{channel.id}"} class="p-8 flex flex-wrap gap-4">
+    <div
+      :for={{id, variation} <- @streams[variations_stream(channel.id)]}
+      class="relative"
+      id={"variation_#{id}"}
+    >
+      <img
+        class="cursor-pointer"
+        style="width:auto;height:100px;"
+        src={"https://indplatformpamlsaiaem.blob.core.windows.net/advantage/#{variation.filename}"}
+      />
+      <div class="w-full text-center">
+        <%= variation.variation.name %>
+      </div>
+      <.link
+        class="absolute top-0 right-0 rounded-lg bg-red-100 px-2 py-1 hover:bg-zinc-200/80 cursor-pointer"
+        phx-click={JS.push("delete", value: %{id: variation.id}) |> hide("#variation_#{id}")}
+        data-confirm={gettext("¿Borrar variación?")}
+      >
+        <%= gettext("Borrar") %>
+      </.link>
+    </div>
+  </div>
+
+  <%!-- <.table
+    id={"variations_channel_#{channel.id}"}
+    rows={}
+    row_click={fn {_id, _variation} -> JS.navigate(~p"/campaigns/#{@campaign}") end}
+  >
+    <:col :let={{_id, variation}} label={gettext("Explicación")}>
+      <%= variation.explanation %>
+    </:col>
+    <:action :let={campaign}>
+    <div class="sr-only">
+      <.link navigate={~p"/campaigns/#{campaign}"}><%= gettext("Detalle") %></.link>
+    </div>
+  </:action>
+    <:action :let={{id, variation}}>
+
+    </:action>
+  </.table> --%>
+</div>
+
+<.modal
+  :if={@live_action == :edit}
+  id="campaign-modal"
+  show
+  on_cancel={JS.patch(~p"/campaigns/#{@campaign}")}
+>
+  <.live_component
+    module={AdVantageWeb.CampaignLive.FormComponent}
+    id={@campaign.id}
+    title={@page_title}
+    action={@live_action}
+    campaign={@campaign}
+    patch={~p"/campaigns/#{@campaign}"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action in [:new_variation, :edit_variation]}
+  id="campaign_variation-modal"
+  show
+  on_cancel={JS.patch(~p"/campaigns/#{@campaign}")}
+>
+  <.live_component
+    module={AdVantageWeb.CampaignLive.VariationFormComponent}
+    id={@variation.id || :new}
+    title={@page_title}
+    action={@live_action}
+    channel_id={@channel_id}
+    campaign_variation={@variation}
+    campaign_id={@campaign.id}
+    patch={~p"/campaigns/#{@campaign}"}
+  />
+</.modal>

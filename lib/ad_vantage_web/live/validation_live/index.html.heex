@@ -1,0 +1,42 @@
+<.header>
+  Listing Validations
+  <:actions>
+    <.link patch={~p"/validations/new"}>
+      <.button>New Validation</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="validations"
+  rows={@streams.validations}
+  row_click={fn {_id, validation} -> JS.navigate(~p"/validations/#{validation}") end}
+>
+  <:col :let={{_id, validation}} label="Approved"><%= validation.approved %></:col>
+  <:col :let={{_id, validation}} label="Explanation"><%= validation.explanation %></:col>
+  <:action :let={{_id, validation}}>
+    <div class="sr-only">
+      <.link navigate={~p"/validations/#{validation}"}>Show</.link>
+    </div>
+    <.link patch={~p"/validations/#{validation}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{id, validation}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: validation.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="validation-modal" show on_cancel={JS.patch(~p"/validations")}>
+  <.live_component
+    module={AdVantageWeb.ValidationLive.FormComponent}
+    id={@validation.id || :new}
+    title={@page_title}
+    action={@live_action}
+    validation={@validation}
+    patch={~p"/validations"}
+  />
+</.modal>

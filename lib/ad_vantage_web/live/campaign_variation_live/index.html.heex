@@ -1,0 +1,42 @@
+<.header>
+  Listing Campaign variations
+  <:actions>
+    <.link patch={~p"/campaign_variations/new"}>
+      <.button>New Campaign variation</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="campaign_variations"
+  rows={@streams.campaign_variations}
+  row_click={fn {_id, campaign_variation} -> JS.navigate(~p"/campaign_variations/#{campaign_variation}") end}
+>
+  <:col :let={{_id, campaign_variation}} label="Filename"><%= campaign_variation.filename %></:col>
+  <:col :let={{_id, campaign_variation}} label="Explanation"><%= campaign_variation.explanation %></:col>
+  <:action :let={{_id, campaign_variation}}>
+    <div class="sr-only">
+      <.link navigate={~p"/campaign_variations/#{campaign_variation}"}>Show</.link>
+    </div>
+    <.link patch={~p"/campaign_variations/#{campaign_variation}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{id, campaign_variation}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: campaign_variation.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="campaign_variation-modal" show on_cancel={JS.patch(~p"/campaign_variations")}>
+  <.live_component
+    module={AdVantageWeb.CampaignVariationLive.FormComponent}
+    id={@campaign_variation.id || :new}
+    title={@page_title}
+    action={@live_action}
+    campaign_variation={@campaign_variation}
+    patch={~p"/campaign_variations"}
+  />
+</.modal>
