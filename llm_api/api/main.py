@@ -21,7 +21,8 @@ def healthcheck():
 def validate(payload = Body(...)):
     url_master = payload["url_master"]
     url_variation = payload["url_variation"]
-    return Validator().validate_variation(url_master, url_variation)
+    response = Validator().validate_variation(url_master, url_variation)
+    return JSONResponse({"data": response})
 
 
 @app.post("/tasks", status_code=201)

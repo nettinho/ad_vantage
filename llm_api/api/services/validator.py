@@ -53,7 +53,7 @@ class Validator:
         llm = GenerativeChatFactory.use("ChatOpenAIVision")
         response = llm.send_message(content)
 
-        return json.loads(response['choices'][0]['message']['content'])
+        return response['choices'][0]['message']['content']
 
     @staticmethod
     def get_as_base64(url):
