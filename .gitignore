@@ -35,5 +35,11 @@ ad_vantage-*.tar
 npm-debug.log
 /assets/node_modules/
 
-/venv/
+*.pyc
+__pycache
+.DS_Store
+venv/
+__pycache__/
+.pytest_cache/
 .env
+logs/
