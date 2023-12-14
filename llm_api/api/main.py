@@ -19,9 +19,7 @@ def healthcheck():
 
 @app.post("/validate")
 def validate(payload = Body(...)):
-    url_master = payload["url_master"]
-    url_variation = payload["url_variation"]
-    response = Validator().validate_variation(url_master, url_variation)
+    response = Validator().validate_variation(payload)
     return JSONResponse({"data": response})
 
 
