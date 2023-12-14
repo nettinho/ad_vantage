@@ -1,16 +1,25 @@
 <.header>
   Validación de <%= @campaign.name %> - <%= @variation.name %>
-  <:actions>
-    <.link patch={~p"/validations/#{@validation}/show/edit"} phx-click={JS.push_focus()}>
-      <.button>Edit validation</.button>
-    </.link>
-  </:actions>
 </.header>
+
+<div class="flex-col gap-8">
+  <div class="text-center">
+    Master
+    <img src={"https://indplatformpamlsaiaem.blob.core.windows.net/advantage/#{@campaign.filename}"} />
+  </div>
+
+  <div class="text-center">
+    Variación
+    <img src={"https://indplatformpamlsaiaem.blob.core.windows.net/advantage/#{@campaign_variation.filename}"} />
+  </div>
+</div>
 
 <.list>
   <:item title={gettext("Estado")}><%= @validation.status %></:item>
   <:item title={gettext("Fecha")}><%= @validation.inserted_at %></:item>
-  <:item title={gettext("Validez")}><%= @validation.valid_rate * 100 %>%</:item>
+  <:item title={gettext("Validez")}>
+    <span :if={@validation.valid_rate}><%= @validation.valid_rate * 100 %>%</span>%
+  </:item>
   <:item title={gettext("Errores")}>
     <.inner_list>
       <:item :for={{key, text} <- parse_errors(@validation.results)} title={key}>
@@ -22,7 +31,7 @@
   <:item title={gettext("Contenido de la respuesta")}><%= @validation.raw_results %></:item>
 </.list>
 
-<.back navigate={~p"/campaigns/#{@campaign.id}/variations/#{@campaign_variation_id}"}>
+<.back navigate={~p"/campaigns/#{@campaign.id}/variations/#{@campaign_variation.id}"}>
   <%= gettext("Volver a la variación") %>
 </.back>
 
