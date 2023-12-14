@@ -1,12 +1,14 @@
+<.breadcrumb>
+  <:item title={@campaign.name} />
+</.breadcrumb>
+
 <.header>
-  <%= gettext("Campaña") %> - <%= @campaign.name %>
   <:actions>
     <.link patch={~p"/campaigns/#{@campaign}/show/edit"} phx-click={JS.push_focus()}>
       <.button><%= gettext("Editar campaña") %></.button>
     </.link>
   </:actions>
 </.header>
-<.back navigate={~p"/campaigns"}><%= gettext("Volver a campañas") %></.back>
 
 <.list>
   <:item title={gettext("Nombre")}><%= @campaign.name %></:item>

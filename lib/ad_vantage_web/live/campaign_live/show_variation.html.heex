@@ -1,58 +1,68 @@
-<.header>
-  <%= @campaign.name %> - <%= @variation.variation.channel.name %> - <%= @variation.variation.name %>
-  <%!-- <:actions>
-    <.link
-      patch={~p"/campaigns/#{@campaign}/variations/#{@variation}/show/edit"}
-      phx-click={JS.push_focus()}
-    >
-      <.button><%= gettext("Editar") %></.button>
-    </.link>
-  </:actions> --%>
-</.header>
+<.breadcrumb>
+  <:item title={@campaign.name} href={~p"/campaigns/#{@campaign}"} />
+  <:item title={@variation.variation.channel.name} />
+  <:item title={@variation.variation.name} />
+</.breadcrumb>
 
-<div class="p-3 mt-10">
+<div class="p-3 mt-10 flex justify-center w-full">
   <img src={"https://indplatformpamlsaiaem.blob.core.windows.net/advantage/#{@variation.filename}"} />
 </div>
-<.list>
-  <:item title={gettext("Explicación")}><%= @variation.explanation %></:item>
-</.list>
 
-<form phx-change="change_prompt">
-  <.input name="prompt_id" type="select" options={@prompt_opts} value={@selected_prompt} />
-</form>
-<.header>
-  <%= gettext("Validaciones") %>
-  <:actions>
-    <.button phx-click="run_validation">
-      <%= gettext("Ejecutar validación") %>
-    </.button>
-  </:actions>
-</.header>
-
-<.table
-  id="validations"
-  rows={@streams.validations}
-  row_click={fn {_id, validation} -> JS.navigate(~p"/validations/#{validation.id}") end}
->
-  <:col :let={{_id, validation}} label={gettext("Estado")}><%= validation.status %></:col>
-  <:col :let={{_id, validation}} label={gettext("Mensaje")}><%= validation.message %></:col>
-  <:col :let={{_id, validation}} label={gettext("% Validación")}>
-    <span :if={validation.valid_rate}><%= validation.valid_rate * 100 %>%</span>
-  </:col>
-  <:col :let={{_id, validation}} label={gettext("Fecha")}><%= validation.inserted_at %></:col>
-  <:action :let={{id, validation}}>
-    <.link
-      phx-click={JS.push("delete", value: %{id: validation.id}) |> hide("##{id}")}
-      data-confirm={gettext("¿Borrar validación?")}
-    >
-      <%= gettext("Borrar") %>
-    </.link>
-  </:action>
-</.table>
-
-<.back navigate={~p"/campaigns/#{@campaign}"}>
-  <%= gettext("Volver a la campaña ") <> @campaign.name %>
-</.back>
+<div class="w-full p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-8">
+  <div class="flex items-center justify-between mb-4">
+    <h5 class="text-xl font-bold leading-none text-gray-900"><%= gettext("Validaciones") %></h5>
+    <div class="flex justify-end gap-4 align-center">
+      <form phx-change="change_prompt">
+        <.input name="prompt_id" type="select" options={@prompt_opts} value={@selected_prompt} />
+      </form>
+      <.button phx-click="run_validation">
+        <%= gettext("Ejecutar validación") %>
+      </.button>
+    </div>
+  </div>
+  <div class="flow-root">
+    <ul id="validations-list" phx-update="stream" role="list" class="divide-y divide-gray-200">
+      <li :for={{id, validation} <- @streams.validations} class="py-3 sm:py-4">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <.icon
+              :if={validation.status in ["done"]}
+              name="hero-check-badge"
+              class="w-8 h-8 text-green-400"
+            />
+            <.icon
+              :if={validation.status in ["validating"]}
+              name="hero-signal"
+              class="w-8 h-8 text-amber-400 animate-ping"
+            />
+            <.icon
+              :if={validation.status in ["error"]}
+              name="hero-exclamation-triangle"
+              class="w-8 h-8 text-rose-500"
+            />
+          </div>
+          <div class="flex-1 min-w-0 ms-4">
+            <p class="text-sm font-medium text-gray-900 truncate">
+              <%= validation.message %>
+            </p>
+            <p class="text-sm text-gray-500 truncate">
+              <%= Calendar.strftime(validation.inserted_at, "%d/%m/%Y %H:%M") %>
+            </p>
+          </div>
+          <div class="inline-flex items-center text-base font-semibold text-gray-900">
+            <span :if={validation.valid_rate}><%= validation.valid_rate * 100 %>%</span>
+          </div>
+          <.link
+            phx-click={JS.push("delete", value: %{id: validation.id}) |> hide("##{id}")}
+            data-confirm={gettext("¿Borrar validación?")}
+          >
+            <.icon name="hero-trash" class="ml-4 text-red-400 " />
+          </.link>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
 
 <.modal
   :if={@live_action in [:edit_variation]}
