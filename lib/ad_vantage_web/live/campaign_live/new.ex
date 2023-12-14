@@ -15,7 +15,7 @@ defmodule AdVantageWeb.CampaignLive.New do
      |> stream(:campaigns, Campaings.list_campaigns())
      |> assign_form(changeset)
      |> allow_upload(:master,
-       accept: ~w(.jpg .jpeg),
+       accept: ~w(.jpg .jpeg .png),
        max_entries: 1
      )}
   end
