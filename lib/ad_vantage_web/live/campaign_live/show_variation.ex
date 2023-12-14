@@ -4,6 +4,7 @@ defmodule AdVantageWeb.CampaignLive.ShowVariation do
   alias AdVantage.Campaings
   alias AdVantage.Campaings.Validation
   alias AdVantage.LLMApi
+  alias AdVantage.Prompts
 
   @impl true
   def mount(_params, _session, socket) do
@@ -11,7 +12,19 @@ defmodule AdVantageWeb.CampaignLive.ShowVariation do
       Phoenix.PubSub.subscribe(AdVantage.PubSub, "validations")
     end
 
-    {:ok, socket}
+    prompt_opts =
+      Prompts.list_prompts()
+      |> Enum.map(&{&1.name, &1.id})
+
+    selected_prompt =
+      prompt_opts
+      |> List.first()
+      |> elem(1)
+
+    {:ok,
+     socket
+     |> assign(:prompt_opts, prompt_opts)
+     |> assign(:selected_prompt, selected_prompt)}
   end
 
   @impl true
@@ -37,22 +50,25 @@ defmodule AdVantageWeb.CampaignLive.ShowVariation do
   def handle_event("run_validation", _, socket) do
     variation = socket.assigns.variation
 
+    prompt =
+      socket.assigns.selected_prompt
+      |> Prompts.get_prompt!()
+
     {:ok, validation} =
       Campaings.create_validation(%{campaign_variation_id: variation.id})
 
-    LLMApi.validate(validation)
-    {:noreply, socket}
-  end
-
-  def handle_event("rerun_validation", %{"id" => validation_id}, socket) do
-    validation = Campaings.get_validation!(validation_id)
-
-    LLMApi.validate(validation)
+    LLMApi.validate(validation, prompt)
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event(_, _, socket) do
+  def handle_event("change_prompt", %{"prompt_id" => prompt_id}, socket) do
+    {:noreply, assign(socket, :selected_prompt, prompt_id)}
+  end
+
+  @impl true
+  def handle_event(event, _, socket) do
+    IO.inspect(event, label: "UNHANDLED EVENT")
     {:noreply, socket}
   end
 
@@ -65,5 +81,10 @@ defmodule AdVantageWeb.CampaignLive.ShowVariation do
         %{assigns: %{variation: %{id: var_id}}} = socket
       ) do
     {:noreply, stream_insert(socket, :validations, validation)}
+  end
+
+  @impl true
+  def handle_info(_, socket) do
+    {:noreply, socket}
   end
 end

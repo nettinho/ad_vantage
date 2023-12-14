@@ -44,6 +44,12 @@ defmodule AdVantageWeb.Router do
     live "/validations/:id/edit", ValidationLive.Index, :edit
     live "/validations/:id", ValidationLive.Show, :show
     live "/validations/:id/show/edit", ValidationLive.Show, :edit
+
+    live "/prompts", PromptLive.Index, :index
+    live "/prompts/new", PromptLive.Index, :new
+    live "/prompts/:id/edit", PromptLive.Index, :edit
+    live "/prompts/:id", PromptLive.Show, :show
+    live "/prompts/:id/show/edit", PromptLive.Show, :edit
   end
 
   # Other scopes may use custom stacks.

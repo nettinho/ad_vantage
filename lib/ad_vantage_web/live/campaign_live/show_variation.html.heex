@@ -17,6 +17,9 @@
   <:item title={gettext("Explicación")}><%= @variation.explanation %></:item>
 </.list>
 
+<form phx-change="change_prompt">
+  <.input name="prompt_id" type="select" options={@prompt_opts} value={@selected_prompt} />
+</form>
 <.header>
   <%= gettext("Validaciones") %>
   <:actions>
@@ -30,11 +33,6 @@
   <:col :let={{_id, validation}} label={gettext("Estado")}><%= validation.status %></:col>
   <:col :let={{_id, validation}} label={gettext("Mensaje")}><%= validation.message %></:col>
   <:col :let={{_id, validation}} label={gettext("Fecha")}><%= validation.inserted_at %></:col>
-  <:action :let={{_id, validation}}>
-    <.link phx-click="rerun_validation" phx-value-id={validation.id}>
-      <%= gettext("Relanzar") %>
-    </.link>
-  </:action>
   <:action :let={{id, validation}}>
     <.link
       phx-click={JS.push("delete", value: %{id: validation.id}) |> hide("##{id}")}

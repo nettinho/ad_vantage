@@ -15,13 +15,13 @@ defmodule AdVantage.LLMApi do
     {:ok, nil}
   end
 
-  def validate(validation) do
-    GenServer.cast(__MODULE__, {:validate, validation})
+  def validate(validation, prompt) do
+    GenServer.cast(__MODULE__, {:validate, validation, prompt})
   end
 
   @impl true
-  def handle_cast({:validate, validation}, _) do
-    Task.async(fn -> do_validate(validation) end)
+  def handle_cast({:validate, validation, prompt}, _) do
+    Task.async(fn -> do_validate(validation, prompt) end)
     {:noreply, nil}
   end
 
@@ -30,11 +30,11 @@ defmodule AdVantage.LLMApi do
     {:noreply, socket}
   end
 
-  defp do_validate(%{status: status, campaign_variation: variation} = validation)
+  defp do_validate(%{status: status, campaign_variation: variation} = validation, prompt)
        when status in ["init", "error"] do
     Campaings.update_validation(validation, %{status: "validating", message: ""})
 
-    case run_validation(variation) do
+    case run_validation(variation, prompt) do
       {:ok, %{"data" => data}} ->
         Campaings.update_validation(validation, %{status: "done", message: data})
 
@@ -43,20 +43,40 @@ defmodule AdVantage.LLMApi do
     end
   end
 
-  defp do_validate(_) do
+  defp do_validate(_, _) do
     nil
   end
 
-  def run_validation(variation) do
-    body =
-      %{
-        url_master: "#{@image_prefix}#{variation.campaign.filename}",
-        url_variation: "#{@image_prefix}#{variation.filename}"
-      }
+  def run_validation(variation, prompt) do
+    content =
+      prompt
+      |> Map.get(:content)
+      |> Enum.map(fn
+        %{type: "var"} ->
+          %{
+            "type" => "image_url",
+            "image_url" => %{
+              "url" => "#{@image_prefix}#{variation.filename}",
+              "detail" => "high"
+            }
+          }
+
+        %{type: "master"} ->
+          %{
+            "type" => "image_url",
+            "image_url" => %{
+              "url" => "#{@image_prefix}#{variation.campaign.filename}",
+              "detail" => "high"
+            }
+          }
+
+        %{text: text} ->
+          %{"type" => "text", "text" => text}
+      end)
       |> Jason.encode!()
 
     Req.post(@url,
-      body: body,
+      body: content,
       receive_timeout: 600_000
     )
     |> case do

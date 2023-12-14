@@ -6,8 +6,13 @@
   <.input field={@form[:name]} type="text" label={gettext("Nombre")} />
   <.input field={@form[:description]} type="textarea" label={gettext("Descripción")} />
 
-  <label for={@uploads.master.ref}><%= gettext("Fichero Master") %></label>
-  <.live_file_input upload={@uploads.master} />
+  <label for={@uploads.master.ref} class="block text-sm font-semibold leading-6 text-zinc-800">
+    <%= gettext("Fichero Master") %>
+  </label>
+
+  <div id="upload-form">
+    <.live_file_input upload={@uploads.master} />
+  </div>
 
   <article :for={entry <- @uploads.master.entries} class="upload-entry">
     <figure>

@@ -28,8 +28,12 @@ defmodule AdVantageWeb.CampaignLive.VariationFormComponent do
         />
         <.input field={@form[:explanation]} type="textarea" label={gettext("Explicación")} />
 
-        <label for={@uploads.file.ref}><%= gettext("Fichero Master") %></label>
-        <.live_file_input upload={@uploads.file} />
+        <label for={@uploads.file.ref} class="block text-sm font-semibold leading-6 text-zinc-800">
+          <%= gettext("Fichero Variación") %>
+        </label>
+        <div id="upload-form">
+          <.live_file_input upload={@uploads.file} />
+        </div>
 
         <article :for={entry <- @uploads.file.entries} class="upload-entry">
           <figure>
@@ -80,7 +84,7 @@ defmodule AdVantageWeb.CampaignLive.VariationFormComponent do
      |> assign(:variation_options, variation_options)
      |> assign_form(changeset)
      |> allow_upload(:file,
-       accept: ~w(.jpg .jpeg),
+       accept: ~w(.jpg .jpeg .png),
        max_entries: 1
      )}
   end
