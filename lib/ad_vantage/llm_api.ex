@@ -36,7 +36,27 @@ defmodule AdVantage.LLMApi do
 
     case run_validation(variation, prompt) do
       {:ok, %{"data" => data}} ->
-        Campaings.update_validation(validation, %{status: "done", message: data})
+        IO.inspect(data, label: "RETURNED DATA")
+
+        case Jason.decode(data) do
+          {:ok, %{"validate" => valid_rate, "errors" => errors}} ->
+            IO.inspect(errors, label: "OK")
+
+            Campaings.update_validation(validation, %{
+              status: "done",
+              results: errors,
+              raw_results: data,
+              valid_rate: valid_rate
+            })
+            |> dbg
+
+          _ ->
+            Campaings.update_validation(validation, %{
+              status: "done invalid",
+              raw_results: data,
+              message: "Resultado JSON invalido"
+            })
+        end
 
       {:error, error} ->
         Campaings.update_validation(validation, %{status: "error", message: error})

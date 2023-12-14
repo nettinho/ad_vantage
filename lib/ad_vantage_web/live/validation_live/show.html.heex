@@ -1,6 +1,5 @@
 <.header>
-  Validation <%= @validation.id %>
-  <:subtitle>This is a validation record from your database.</:subtitle>
+  Validación de <%= @campaign.name %> - <%= @variation.name %>
   <:actions>
     <.link patch={~p"/validations/#{@validation}/show/edit"} phx-click={JS.push_focus()}>
       <.button>Edit validation</.button>
@@ -9,13 +8,30 @@
 </.header>
 
 <.list>
-  <:item title="Approved"><%= @validation.approved %></:item>
-  <:item title="Explanation"><%= @validation.explanation %></:item>
+  <:item title={gettext("Estado")}><%= @validation.status %></:item>
+  <:item title={gettext("Fecha")}><%= @validation.inserted_at %></:item>
+  <:item title={gettext("Validez")}><%= @validation.valid_rate * 100 %>%</:item>
+  <:item title={gettext("Errores")}>
+    <.inner_list>
+      <:item :for={{key, text} <- parse_errors(@validation.results)} title={key}>
+        <%= text %>
+      </:item>
+    </.inner_list>
+  </:item>
+  <:item title={gettext("Contenido de la respuesta")}><%= @validation.message %></:item>
+  <:item title={gettext("Contenido de la respuesta")}><%= @validation.raw_results %></:item>
 </.list>
 
-<.back navigate={~p"/validations"}>Back to validations</.back>
+<.back navigate={~p"/campaigns/#{@campaign.id}/variations/#{@campaign_variation_id}"}>
+  <%= gettext("Volver a la variación") %>
+</.back>
 
-<.modal :if={@live_action == :edit} id="validation-modal" show on_cancel={JS.patch(~p"/validations/#{@validation}")}>
+<.modal
+  :if={@live_action == :edit}
+  id="validation-modal"
+  show
+  on_cancel={JS.patch(~p"/validations/#{@validation}")}
+>
   <.live_component
     module={AdVantageWeb.ValidationLive.FormComponent}
     id={@validation.id}

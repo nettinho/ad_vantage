@@ -449,7 +449,7 @@ defmodule AdVantage.Campaings do
     do:
       Validation
       |> Repo.get!(id)
-      |> Repo.preload(campaign_variation: [:campaign])
+      |> Repo.preload(campaign_variation: [:campaign, :variation])
 
   @doc """
   Creates a validation.
