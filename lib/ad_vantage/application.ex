@@ -17,7 +17,8 @@ defmodule AdVantage.Application do
       # Start a worker by calling: AdVantage.Worker.start_link(arg)
       # {AdVantage.Worker, arg},
       # Start to serve requests, typically the last entry
-      AdVantageWeb.Endpoint
+      AdVantageWeb.Endpoint,
+      AdVantage.LLMApi
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

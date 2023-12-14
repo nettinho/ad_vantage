@@ -4,6 +4,7 @@ defmodule AdVantage.Campaings do
   """
 
   import Ecto.Query, warn: false
+  alias Phoenix.PubSub
   alias AdVantage.Repo
 
   alias AdVantage.Campaings.Campaign
@@ -335,7 +336,7 @@ defmodule AdVantage.Campaings do
     do:
       CampaignVariation
       |> Repo.get!(id)
-      |> Repo.preload(:variation)
+      |> Repo.preload([:validations, :campaign, variation: [:channel]])
 
   @doc """
   Creates a campaign_variation.
@@ -353,6 +354,10 @@ defmodule AdVantage.Campaings do
     %CampaignVariation{}
     |> CampaignVariation.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, variation} -> {:ok, Repo.preload(variation, [:campaign, :variation, :validations])}
+      error -> error
+    end
   end
 
   @doc """
@@ -371,6 +376,15 @@ defmodule AdVantage.Campaings do
     campaign_variation
     |> CampaignVariation.changeset(attrs)
     |> Repo.update()
+    |> case do
+      {:ok, variation} ->
+        variation = Repo.preload(variation, [:campaign, :variation, :validations])
+        Phoenix.PubSub.broadcast!(Thisplay.PubSub, "campaing_variation", {:update, variation})
+        {:ok, variation}
+
+      error ->
+        error
+    end
   end
 
   @doc """
@@ -431,7 +445,11 @@ defmodule AdVantage.Campaings do
       ** (Ecto.NoResultsError)
 
   """
-  def get_validation!(id), do: Repo.get!(Validation, id)
+  def get_validation!(id),
+    do:
+      Validation
+      |> Repo.get!(id)
+      |> Repo.preload(campaign_variation: [:campaign])
 
   @doc """
   Creates a validation.
@@ -449,6 +467,7 @@ defmodule AdVantage.Campaings do
     %Validation{}
     |> Validation.changeset(attrs)
     |> Repo.insert()
+    |> broadcast_validation(:create)
   end
 
   @doc """
@@ -467,7 +486,18 @@ defmodule AdVantage.Campaings do
     validation
     |> Validation.changeset(attrs)
     |> Repo.update()
+    |> broadcast_validation(:update)
   end
+
+  defp broadcast_validation({:ok, validation}, action) do
+    validation = Repo.preload(validation, campaign_variation: [:campaign])
+
+    PubSub.broadcast!(AdVantage.PubSub, "validations", {action, validation})
+
+    {:ok, validation}
+  end
+
+  defp broadcast_validation(error, _), do: error
 
   @doc """
   Deletes a validation.

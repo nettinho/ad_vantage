@@ -1,0 +1,67 @@
+<.header>
+  <%= @campaign.name %> - <%= @variation.variation.channel.name %> - <%= @variation.variation.name %>
+  <%!-- <:actions>
+    <.link
+      patch={~p"/campaigns/#{@campaign}/variations/#{@variation}/show/edit"}
+      phx-click={JS.push_focus()}
+    >
+      <.button><%= gettext("Editar") %></.button>
+    </.link>
+  </:actions> --%>
+</.header>
+
+<div class="p-3 mt-10">
+  <img src={"https://indplatformpamlsaiaem.blob.core.windows.net/advantage/#{@variation.filename}"} />
+</div>
+<.list>
+  <:item title={gettext("Explicación")}><%= @variation.explanation %></:item>
+</.list>
+
+<.header>
+  <%= gettext("Validaciones") %>
+  <:actions>
+    <.button phx-click="run_validation">
+      <%= gettext("Ejecutar validación") %>
+    </.button>
+  </:actions>
+</.header>
+
+<.table id="validations" rows={@streams.validations}>
+  <:col :let={{_id, validation}} label={gettext("Estado")}><%= validation.status %></:col>
+  <:col :let={{_id, validation}} label={gettext("Mensaje")}><%= validation.message %></:col>
+  <:col :let={{_id, validation}} label={gettext("Fecha")}><%= validation.inserted_at %></:col>
+  <:action :let={{_id, validation}}>
+    <.link phx-click="rerun_validation" phx-value-id={validation.id}>
+      <%= gettext("Relanzar") %>
+    </.link>
+  </:action>
+  <:action :let={{id, validation}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: validation.id}) |> hide("##{id}")}
+      data-confirm={gettext("¿Borrar validación?")}
+    >
+      <%= gettext("Borrar") %>
+    </.link>
+  </:action>
+</.table>
+
+<.back navigate={~p"/campaigns/#{@campaign}"}>
+  <%= gettext("Volver a la campaña ") <> @campaign.name %>
+</.back>
+
+<.modal
+  :if={@live_action in [:edit_variation]}
+  id="variation-modal"
+  show
+  on_cancel={JS.patch(~p"/campaigns/#{@campaign}/variations/#{@variation}")}
+>
+  <.live_component
+    module={AdVantageWeb.ChannelLive.VariationFormComponent}
+    id={@variation.id || :new}
+    title={@page_title}
+    action={@live_action}
+    variation={@variation}
+    campaign_id={@campaign.id}
+    patch={~p"/campaigns/#{@campaign}/variations/#{@variation}"}
+  />
+</.modal>

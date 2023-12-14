@@ -2,10 +2,15 @@ defmodule AdVantage.Campaings.Validation do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias AdVantage.Campaings.CampaignVariation
+
   schema "validations" do
     field :approved, :boolean, default: false
     field :explanation, :string
-    field :campaign_variation_id, :id
+    field :status, :string, default: "init"
+    field :message, :string
+
+    belongs_to :campaign_variation, CampaignVariation
 
     timestamps(type: :utc_datetime)
   end
@@ -13,7 +18,7 @@ defmodule AdVantage.Campaings.Validation do
   @doc false
   def changeset(validation, attrs) do
     validation
-    |> cast(attrs, [:approved, :explanation])
-    |> validate_required([:approved, :explanation])
+    |> cast(attrs, [:approved, :explanation, :campaign_variation_id, :status, :message])
+    |> validate_required([:approved, :campaign_variation_id])
   end
 end

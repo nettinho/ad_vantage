@@ -47,8 +47,9 @@ defmodule AdVantageWeb.CampaignLive.Show do
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    %{variation: %{channel_id: channel_id}} = variation = Campaings.get_campaign_variation!(id)
-    {:ok, _} = Campaings.delete_campaign_variation(variation)
+    id
+    |> Campaings.get_campaign_variation!()
+    |> Campaings.delete_campaign_variation()
 
     {:noreply, socket}
   end

@@ -4,6 +4,7 @@ defmodule AdVantage.Campaings.CampaignVariation do
 
   alias AdVantage.Campaings.Campaign
   alias AdVantage.Campaings.Variation
+  alias AdVantage.Campaings.Validation
 
   schema "campaign_variations" do
     field :filename, :string
@@ -11,6 +12,8 @@ defmodule AdVantage.Campaings.CampaignVariation do
 
     belongs_to :campaign, Campaign
     belongs_to :variation, Variation
+
+    has_many :validations, Validation
 
     timestamps(type: :utc_datetime)
   end

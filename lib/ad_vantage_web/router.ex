@@ -24,6 +24,7 @@ defmodule AdVantageWeb.Router do
     live "/campaigns/:id", CampaignLive.Show, :show
     live "/campaigns/:id/show/edit", CampaignLive.Show, :edit
     live "/campaigns/:id/:channel_id/variations/new", CampaignLive.Show, :new_variation
+    live "/campaigns/:id/variations/:variation_id", CampaignLive.ShowVariation, :show_variation
 
     live "/channels", ChannelLive.Index, :index
     live "/channels/new", ChannelLive.Index, :new
@@ -37,12 +38,6 @@ defmodule AdVantageWeb.Router do
     live "/channels/:id/variations/:variation_id/show/edit",
          ChannelLive.ShowVariation,
          :edit_variation
-
-    # live "/campaign_variations", CampaignVariationLive.Index, :index
-    # live "/campaign_variations/new", CampaignVariationLive.Index, :new
-    # live "/campaign_variations/:id/edit", CampaignVariationLive.Index, :edit
-    # live "/campaign_variations/:id", CampaignVariationLive.Show, :show
-    # live "/campaign_variations/:id/show/edit", CampaignVariationLive.Show, :edit
 
     live "/validations", ValidationLive.Index, :index
     live "/validations/new", ValidationLive.Index, :new

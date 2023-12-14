@@ -34,11 +34,16 @@
     </.link>
   </div>
 
-  <div id={"variations_channel_#{channel.id}"} class="p-8 flex flex-wrap gap-4">
+  <div
+    id={"variations_channel_#{channel.id}"}
+    phx-update="stream"
+    class="p-8 flex flex-wrap gap-4"
+  >
     <div
       :for={{id, variation} <- @streams[variations_stream(channel.id)]}
       class="relative"
       id={"variation_#{id}"}
+      phx-click={JS.navigate(~p"/campaigns/#{@campaign}/variations/#{variation.id}")}
     >
       <img
         class="cursor-pointer"

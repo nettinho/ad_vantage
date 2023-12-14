@@ -61,14 +61,12 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :azurex, Azurex.Blob.Config,
-  # api_url: "https://sample.blob.core.windows.net", # Optional
-  # default_container: "defaultcontainer", # Optional
-  storage_account_name: "indplatformpamlsaiaem",
-  storage_account_key:
-    "x3tN0UPD46HHb9URjbpRvUDEgXimSCyFzzBZYG77s7dHijeDIoiJJYnA66cp0a3BCM94+MFDKn8V+AStblJQQQ=="
+config :ad_vantage,
+  storage_container: "advantage",
+  image_prefix: "https://indplatformpamlsaiaem.blob.core.windows.net/advantage/"
 
-config :ad_vantage, storage_container: "advantage"
+config :ad_vantage, AdVantage.LLMApi,
+  url: System.get_env("LLM_API_URL", "http://20.86.50.190:80/validate")
 
 # storage_account_connection_string: "Storage=Account;Connection=String" # Required if storage account `name` and `key` not set
 

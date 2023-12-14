@@ -20,6 +20,12 @@ if System.get_env("PHX_SERVER") do
   config :ad_vantage, AdVantageWeb.Endpoint, server: true
 end
 
+config :azurex, Azurex.Blob.Config,
+  # api_url: "https://sample.blob.core.windows.net", # Optional
+  # default_container: "defaultcontainer", # Optional
+  storage_account_name: System.get_env("AZ_STG_ACC_NAME"),
+  storage_account_key: System.get_env("AZ_STG_ACC_KEY")
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||
