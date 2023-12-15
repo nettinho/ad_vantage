@@ -22,66 +22,91 @@
   <%= gettext("Variaciones por canal") %>
 </.header>
 
-<div :for={channel <- @channels} class="w-full mt-5 mb-5">
-  <div class="text-l w-full border-b border-black flex justify-between">
-    <%= channel.name %>
-
-    <.link
-      patch={~p"/campaigns/#{@campaign}/#{channel.id}/variations/new"}
-      phx-click={JS.push_focus()}
-    >
-      <div class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80 cursor-pointer">
-        <%= gettext("Subir variación") %>
-      </div>
-    </.link>
-  </div>
-
-  <div
-    id={"variations_channel_#{channel.id}"}
-    phx-update="stream"
-    class="p-8 flex flex-wrap gap-4"
-  >
-    <div
-      :for={{id, variation} <- @streams[variations_stream(channel.id)]}
-      class="relative"
-      id={"variation_#{id}"}
-      phx-click={JS.navigate(~p"/campaigns/#{@campaign}/variations/#{variation.id}")}
-    >
-      <img
-        class="cursor-pointer"
-        style="width:auto;height:100px;"
-        src={"https://indplatformpamlsaiaem.blob.core.windows.net/advantage/#{variation.filename}"}
-      />
-      <div class="w-full text-center">
-        <%= variation.variation.name %>
-      </div>
-      <.link
-        class="absolute top-0 right-0 rounded-lg bg-red-100 px-2 py-1 hover:bg-zinc-200/80 cursor-pointer"
-        phx-click={JS.push("delete", value: %{id: variation.id}) |> hide("#variation_#{id}")}
-        data-confirm={gettext("¿Borrar variación?")}
+<div
+  id="accordion-flush"
+  data-accordion="collapse"
+  data-active-classes="bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+  data-inactive-classes="text-gray-500 dark:text-gray-400"
+>
+  <div :for={channel <- @channels}>
+    <h2 id={"accordion-collapse-heading-#{channel.id}"}>
+      <button
+        type="button"
+        class="flex items-center justify-between w-full py-5 font-medium rtl:text-right text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400 gap-3"
+        data-accordion-target="#accordion-flush-body-1"
+        aria-expanded="true"
+        aria-controls="accordion-flush-body-1"
       >
-        <%= gettext("Borrar") %>
-      </.link>
+        <span><%= channel.name %></span>
+        <svg
+          data-accordion-icon
+          class="w-3 h-3 rotate-180 shrink-0"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 10 6"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5 5 1 1 5"
+          />
+        </svg>
+      </button>
+    </h2>
+    <div
+      id="accordion-flush-body-1"
+      class="hidden"
+      aria-labelledby={"accordion-flush-heading-#{channel.id}"}
+    >
+      <div class="p-4 w-full flex justify-end">
+        <.link
+          patch={~p"/campaigns/#{@campaign}/#{channel.id}/variations/new"}
+          phx-click={JS.push_focus()}
+        >
+          <button
+            type="button"
+            class="px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            Subir variación
+          </button>
+        </.link>
+      </div>
+      <div class="py-5 border-b border-gray-200 dark:border-gray-700">
+        <div
+          id={"variations_channel_#{channel.id}"}
+          phx-update="stream"
+          class="p-8 flex flex-wrap gap-4"
+        >
+          <div
+            :for={{id, variation} <- @streams[variations_stream(channel.id)]}
+            class="relative"
+            id={"variation_#{id}"}
+            phx-click={JS.navigate(~p"/campaigns/#{@campaign}/variations/#{variation.id}")}
+          >
+            <img
+              class="cursor-pointer w-32 h-32 shadow-lg object-none"
+              src={"https://indplatformpamlsaiaem.blob.core.windows.net/advantage/#{variation.filename}"}
+            />
+            <div class="w-full text-center">
+              <%= variation.variation.name %>
+            </div>
+            <.link
+              class="absolute top-0 right-0 rounded-lg bg-red-100 m-2 px-1 pb-1 hover:bg-zinc-200/80 cursor-pointer"
+              phx-click={
+                JS.push("delete", value: %{id: variation.id}) |> hide("#variation_#{id}")
+              }
+              data-confirm={gettext("¿Borrar variación?")}
+            >
+              <.icon name="hero-trash" />
+            </.link>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-
-  <%!-- <.table
-    id={"variations_channel_#{channel.id}"}
-    rows={}
-    row_click={fn {_id, _variation} -> JS.navigate(~p"/campaigns/#{@campaign}") end}
-  >
-    <:col :let={{_id, variation}} label={gettext("Explicación")}>
-      <%= variation.explanation %>
-    </:col>
-    <:action :let={campaign}>
-    <div class="sr-only">
-      <.link navigate={~p"/campaigns/#{campaign}"}><%= gettext("Detalle") %></.link>
-    </div>
-  </:action>
-    <:action :let={{id, variation}}>
-
-    </:action>
-  </.table> --%>
 </div>
 
 <.modal

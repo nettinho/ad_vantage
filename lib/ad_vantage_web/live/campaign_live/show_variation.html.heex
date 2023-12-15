@@ -22,9 +22,14 @@
   </div>
   <div class="flow-root">
     <ul id="validations-list" phx-update="stream" role="list" class="divide-y divide-gray-200">
-      <li :for={{id, validation} <- @streams.validations} class="py-3 sm:py-4">
+      <li
+        :for={{id, validation} <- @streams.validations}
+        id={id}
+        class="py-3 sm:py-4 cursor-pointer hover:bg-slate-100"
+        phx-click={JS.navigate(~p"/validations/#{validation.id}")}
+      >
         <div class="flex items-center">
-          <div class="flex-shrink-0">
+          <div class="flex-shrink-0 ml-4">
             <.icon
               :if={validation.status in ["done"]}
               name="hero-check-badge"
@@ -56,7 +61,7 @@
             phx-click={JS.push("delete", value: %{id: validation.id}) |> hide("##{id}")}
             data-confirm={gettext("¿Borrar validación?")}
           >
-            <.icon name="hero-trash" class="ml-4 text-red-400 " />
+            <.icon name="hero-trash" class="mx-4 text-red-400 " />
           </.link>
         </div>
       </li>
